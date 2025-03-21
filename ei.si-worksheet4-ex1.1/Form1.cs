@@ -93,6 +93,29 @@ namespace ei_si_worksheet4
         private void ButtonDecrypt_Click(object sender, EventArgs e)
         {
 
+            byte[] encryptedData = null;
+            string privateKey = null;
+            byte[] decryptedData = null;
+
+            try
+            {
+                encryptedData = Convert.FromBase64String(textboxSymmetricKeyEncrypted.Text);
+
+                using (RSACryptoServiceProvider rsa = new RSACryptoServiceProvider())
+                {
+                    //get the private key from the file
+                    privateKey = File.ReadAllText(FILENAME_PRIVATE_KEY);
+
+                    rsa.FromXmlString(privateKey);
+                    decryptedData = rsa.Decrypt(encryptedData, true);  // True = OAEP padding
+                    textboxSymmetricKeyDecrypted.Text = Encoding.UTF8.GetString(decryptedData);
+                }
+            }
+            catch (CryptographicException ex)
+            {
+                MessageBox.Show($"Error: {ex.Message}");
+            }
+
         }
     }
 }
